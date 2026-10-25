@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Gestor Docente</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>input:focus,select:focus{outline:none;border-color:#9c2744;box-shadow:0 0 0 2px rgba(156,39,68,.2)}input[type=radio],input[type=checkbox]{accent-color:#800020}</style>
+</head>
+<body class="bg-[#f1f5f9] text-slate-800 antialiased">
+<header class="sticky top-0 z-10 bg-gradient-to-r from-[#800020] via-[#9c2744] to-[#c7a0aa] text-white px-4 py-3 flex flex-wrap items-center gap-4 shadow-sm backdrop-blur">
+  <h1 class="text-xl font-semibold tracking-tight drop-shadow-sm">📚 Gestor Docente</h1>
+  <select id="grupoSel" class="text-slate-800 bg-white/90 border border-[#e2e8f0] rounded-md p-1"></select>
+  <button id="delGrupo" class="text-sm underline text-white/90 hover:text-white transition">Eliminar grupo</button>
+</header>
+<nav class="flex gap-1 bg-white border-b border-[#e2e8f0] px-4 overflow-x-auto shadow-sm" id="tabs">
+  <button data-t="importar" class="tab px-4 py-2">Importar PDF</button>
+  <button data-t="asistencia" class="tab px-4 py-2">Asistencia</button>
+  <button data-t="notas" class="tab px-4 py-2">Tareas / Exámenes</button>
+  <button data-t="sabana" class="tab px-4 py-2">Resumen / Sábana</button>
+</nav>
+<main class="p-4 max-w-6xl mx-auto">
+  <div id="msg" class="hidden mb-3 p-2 rounded text-sm"></div>
+
+  <section id="importar" class="panel space-y-4">
+    <div class="bg-white p-4 rounded-xl shadow-sm border border-[#e2e8f0] space-y-3">
+      <h2 class="font-semibold">1. Sube el PDF con la lista oficial</h2>
+      <input type="file" id="pdfFile" accept="application/pdf" class="text-sm file:mr-3 file:rounded-md file:border-0 file:bg-[#f1e4e8] file:text-[#800020] file:px-3 file:py-1 hover:file:bg-[#e8d0d7]">
+      <button id="btnPreview" class="bg-[#800020] hover:bg-[#6b0f24] text-white px-3 py-1 rounded-md transition-colors shadow-sm">Previsualizar</button>
+    </div>
+    <div id="previewBox" class="hidden bg-white p-4 rounded-xl shadow-sm border border-[#e2e8f0] space-y-3">
+      <h2 class="font-semibold">2. Valida y confirma</h2>
+      <div class="flex flex-wrap gap-3">
+        <label>Grupo/Asignatura <input id="pvGrupo" class="border rounded p-1"></label>
+        <label>Periodo <input id="pvPeriodo" class="border rounded p-1" placeholder="2026-A"></label>
+      </div>
+      <div id="pvWarn" class="text-amber-700 text-sm"></div>
+      <div class="overflow-x-auto"><table class="w-full text-sm"><thead><tr class="text-left border-b border-[#e2e8f0] text-[#5c0617]"><th></th><th>Matrícula</th><th>Nombre</th><th>Avisos</th></tr></thead><tbody id="pvRows"></tbody></table></div>
+      <button id="btnConfirm" class="bg-[#800020] hover:bg-[#6b0f24] text-white px-3 py-1 rounded-md transition-colors shadow-sm">Confirmar importación</button>
+    </div>
+  </section>
+
+  <section id="asistencia" class="panel hidden bg-white p-4 rounded-xl shadow-sm border border-[#e2e8f0] space-y-3">
+    <div class="flex flex-wrap gap-3 items-center">
+      <input type="date" id="asFecha" class="border rounded p-1">
+      <button id="asTodos" class="border border-[#e2e8f0] text-[#800020] hover:bg-[#f8fafc] px-2 py-1 rounded-md text-sm transition-colors">Todos presentes</button>
+      <button id="asSave" class="bg-[#800020] hover:bg-[#6b0f24] text-white px-3 py-1 rounded-md transition-colors shadow-sm">Guardar</button>
+    </div>
+    <div class="overflow-x-auto"><table class="w-full text-sm"><thead><tr class="text-left border-b border-[#e2e8f0] text-[#5c0617]"><th>Alumno</th><th class="text-center">Presente</th><th class="text-center">Retardo</th><th class="text-center">Falta</th><th class="text-center">Justificado</th></tr></thead><tbody id="asRows"></tbody></table></div>
+  </section>
+
+  <section id="notas" class="panel hidden space-y-4">
+    <div class="bg-white p-4 rounded-xl shadow-sm border border-[#e2e8f0] space-y-3">
+      <h2 class="font-semibold">Nueva evaluación</h2>
+      <div class="flex flex-wrap gap-3">
+        <select id="evTipo" class="border rounded p-1"><option>Tarea</option><option>Práctica</option><option>Examen</option></select>
+        <input id="evTitulo" placeholder="Título" class="border rounded p-1">
+        <input type="date" id="evFecha" class="border rounded p-1">
+        <label>Máx. <input type="number" id="evMax" value="100" min="1" class="border rounded p-1 w-20"></label>
+      </div>
+      <div class="overflow-x-auto"><table class="w-full text-sm"><tbody id="evRows"></tbody></table></div>
+      <button id="evSave" class="bg-[#800020] hover:bg-[#6b0f24] text-white px-3 py-1 rounded-md transition-colors shadow-sm">Guardar evaluación</button>
+    </div>
+    <div class="bg-white p-4 rounded-xl shadow-sm border border-[#e2e8f0]">
+      <h2 class="font-semibold mb-2">Evaluaciones registradas</h2>
+      <ul id="evList" class="text-sm space-y-2"></ul>
+    </div>
+  </section>
+
+  <section id="sabana" class="panel hidden space-y-3">
+    <div class="bg-white p-4 rounded-xl shadow-sm border border-[#e2e8f0] space-y-2">
+      <h2 class="font-semibold">Ponderación (debe sumar 100)</h2>
+      <div class="flex flex-wrap gap-3 items-center">
+        <label>Asistencia % <input type="number" id="pA" class="border rounded p-1 w-20"></label>
+        <label>Tareas % <input type="number" id="pT" class="border rounded p-1 w-20"></label>
+        <label>Prácticas % <input type="number" id="pP" class="border rounded p-1 w-20"></label>
+        <label>Exámenes % <input type="number" id="pE" class="border rounded p-1 w-20"></label>
+        <span id="pSum" class="font-mono"></span>
+        <button id="pSave" class="bg-[#800020] hover:bg-[#6b0f24] text-white px-3 py-1 rounded-md transition-colors shadow-sm">Guardar ponderación</button>
+        <a id="expX" class="border border-[#e2e8f0] text-[#800020] hover:bg-[#f8fafc] px-2 py-1 rounded-md text-sm transition-colors" href="#">Excel</a>
+        <a id="expC" class="border border-[#e2e8f0] text-[#800020] hover:bg-[#f8fafc] px-2 py-1 rounded-md text-sm transition-colors" href="#">CSV</a>
+      </div>
+      <p class="text-xs text-slate-500">Al editar los porcentajes la tabla se recalcula al instante (vista previa) sin guardar.</p>
+    </div>
+    <div class="bg-white p-4 rounded-xl shadow-sm border border-[#e2e8f0] overflow-x-auto">
+      <table class="w-full text-sm"><thead><tr class="text-left border-b border-[#e2e8f0] text-[#5c0617]"><th>Matrícula</th><th>Nombre</th><th>P</th><th>R</th><th>F</th><th>J</th><th>% Asist.</th><th>Prom. Tareas</th><th>Prom. Prácticas</th><th>Prom. Exámenes</th><th>Final</th></tr></thead><tbody id="sbRows"></tbody></table>
+    </div>
+  </section>
+</main>
+<script src="app.js"></script>
+</body>
+</html>

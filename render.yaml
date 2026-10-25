@@ -1,0 +1,22 @@
+databases:
+  - name: gestor-db
+    databaseName: gestor
+    plan: free            # el plan gratuito de Render Postgres expira a los 30 días; cambia a basic-256mb para producción real
+    region: oregon
+
+services:
+  - type: web
+    name: gestor-alumnos
+    runtime: python
+    plan: free
+    region: oregon        # misma región que la base de datos
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/grupos
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.13.5
+      - key: DATABASE_URL
+        fromDatabase:
+          name: gestor-db
+          property: connectionString
