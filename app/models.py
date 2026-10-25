@@ -60,10 +60,8 @@ class CriterioEvaluacion(Base):
     pct_tareas: Mapped[float] = mapped_column(Float, default=20)
     pct_practicas: Mapped[float] = mapped_column(Float, default=20)
     pct_examenes: Mapped[float] = mapped_column(Float, default=40)
-    __table_args__ = (
-        CheckConstraint("ROUND(pct_asistencia + pct_tareas + pct_practicas + pct_examenes, 2) = 100",
-                        name="ck_suma_100"),
-    )
+    # La suma = 100 se valida en la aplicación (grading.validar_pesos) y no con un CHECK SQL,
+    # porque ROUND(double precision, int) no existe en PostgreSQL.
     grupo = relationship("Grupo", back_populates="criterio")
 
 
